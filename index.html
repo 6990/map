@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="ol.css">
+        <link rel="stylesheet" href="vmap.css">
+        <script type="text/javascript" src="ol-debug.js"></script>
+        <script type="text/javascript" src="ext-all.js"></script>
+        <script type="text/javascript" src="vmap-library.js"></script>
+        <style>
+            #map{
+                width: 80%;
+                height: 80%;
+                float: left;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="button">
+            <label>lon:lat</label>
+            <input type="text" id="lon2lat" placeholder="lon,lat"/>
+            <input type="button" value="zoom to lon and lat" onclick="zoom()"/>
+            <br/> <br/>
+            <input type="button" value="load mapview" onclick="loadMapview()"/>
+        </div>
+    </body>
+    <script>
+        var mapConfig = {
+            altShiftDragRotate: false,
+            doubleClickZoom: true,
+            keyboard: true,
+            mouseWheelZoom: true,
+            shiftDragZoom: true,
+            dragPan: true,
+            pinchRotate: false,
+            pinchZoom: false,
+            projection: 'EPSG:4326',
+            zoom: 10,
+            minZoom: 0,
+            maxZoom: 20,
+            center: [
+                11.4,
+                48.1
+            ],
+            fullScreen: true,
+            mousePosition: true,
+            overviewMap: false,
+            scaleLine: true,
+            zoomSlider: true,
+            attribution: false,
+            scaleLineUnits: 'metric',
+            mousePositionFractionDigits: 4
+        }
+        var vmap = new VMAP("map");
+        vmap.init(mapConfig);
+        
+        function zoom(){
+            var lon2lat=document.getElementById('lon2lat').value;
+            var coord = [+lon2lat.split(',')[0],+lon2lat.split(',')[1]];
+            console.log(coord);
+            vmap.views.setCenter(ol.proj.transform(coord,'EPSG:4326','EPSG:3857'));
+        }
+        function loadMapview(){
+            var userid = 2;
+            var mandatorid = 3;
+            var mapviewid = 4;
+            //we should query the layer id belong the mapview
+            var layers = [11,13];
+            layers.forEach(function(layerId){
+                //id, type, url, layerId, layergroupsid, mapViewId, userId, mandatorId, filterParams
+                vmap.layers.loadLayerImageByExtent(layerId+'_Point','point','http://vmap-test.haiberg.cn:8080/GetLayer',layerId,null,mapviewid,userid,mandatorid,null);
+                vmap.layers.loadLayerImageByExtent(layerId+'_Polygon','area','http://vmap-test.haiberg.cn:8080/GetLayer',layerId,null,mapviewid,userid,mandatorid,null);
+            });
+        }
+    </script>
+</html>
